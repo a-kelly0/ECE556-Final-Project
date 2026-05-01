@@ -30,12 +30,11 @@ def load_norm_stats(path: str):
 def capture_frame_rgb() -> Image.Image:
     cam = Picamera2()
     #Force RGB format to avoid BGR
-    cam.configure(cam.create_still_configuration(main={"format": "RGB888"}))
+    cam.configure(cam.create_preview_configuration())
     cam.start()
-    time.sleep(1.0)
-    frame = cam.capture_array()
-    cam.stop()
-    return Image.fromarray(frame).convert("RGB")
+    time.sleep(10)
+    image = cam.capture_file("input.jpg")
+    return image
 
 
 def main():
