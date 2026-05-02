@@ -89,7 +89,7 @@ def main():
     )
     ap.add_argument(
         "--norm",
-        default=str((HERE / ".." / "JSON" / "norm_stats_produce.json").resolve()),
+        default=str((HERE / ".." / "JSON" / "norm_stats_produce_newdata.json").resolve()),
         help="Path to normalization stats json",
     )
     ap.add_argument("--image", required=True, help="Run inference on an image file")
