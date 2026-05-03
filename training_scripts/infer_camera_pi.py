@@ -8,7 +8,7 @@ from PIL import Image
 
 import torchvision.transforms as transforms
 import torchvision.models as models
-from picamera2 import Picamera2
+from picamera2 import Picamera2, Preview
 
 #Recreate exact architecture trained
 def build_model(num_classes: int) -> torch.nn.Module:
@@ -27,21 +27,22 @@ def load_norm_stats(path: str):
     return mean, std
 
 #From picamera2 docs
-def capture_frame_rgb() -> Image.Image:
+def capture_frame_rgb():
     cam = Picamera2()
-    #Force RGB format to avoid BGR
     cam.configure(cam.create_preview_configuration())
+    cam.start_preview(Preview.QT)
     cam.start()
     time.sleep(10)
-    image = cam.capture_file("input.jpg")
+    frame = cam.capture_array()
+    image = Image.fromarray(frame).convert("RGB")
     return image
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--weights", default="food_net.pth", help="Path to saved model state_dict")
-    ap.add_argument("--labels", default="JSON/id2label.json", help="Path to id2label.json")
-    ap.add_argument("--norm", default="JSON/norm_stats.json", help="Path to normalization stats json")
+    ap.add_argument("--weights", default="../food_net.pth", help="Path to saved model state_dict")
+    ap.add_argument("--labels", default="../JSON/id2label.json", help="Path to id2label.json")
+    ap.add_argument("--norm", default="../JSON/norm_stats.json", help="Path to normalization stats json")
     ap.add_argument("--image", default=None, help="Optional: run inference on an image file instead of camera")
     ap.add_argument("--topk", type=int, default=5, help="How many top predictions to print")
     args = ap.parse_args()
