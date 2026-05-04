@@ -7,22 +7,21 @@ def get_recipe(ingredients:list):
     '''
     with open("reduced_recipe_cache.pkl", "rb") as f:
         ds = pickle.load(f)
-    
-    recipe_rankings = {} #dictionary of recipes ranked by how many of the given ingredients are used
+
+    ingredients = set(ingredients)
+
+    winner = None
+    best_score = -1
 
     #iterate through recipes, rank by how many of the available ingredients are used
     for row in ds:
-        ranking = 0
-        for ing in row["NER"]:
-            if ing in ingredients:
-                ranking+=1
-        recipe_rankings[row["title"]] = ranking
+        score = sum(1 for ing in row["NER"] if ing in ingredients)
 
-    winner = max(recipe_rankings, key=recipe_rankings.get) #save best recipe
-
-    print(winner)
+        if score > best_score:
+            best_score = score
+            winner = row["title"]
     
     return winner
 
-available_ingredients = ['blueberries']
-get_recipe(available_ingredients)
+available_ingredients = ['strawberries']
+print(get_recipe(available_ingredients))
