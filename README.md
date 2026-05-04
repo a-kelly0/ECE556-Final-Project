@@ -1,6 +1,6 @@
 #ReciPI: Auto Recipe Generation​
 
-[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
+[![Python 3.13](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
 [![Platform: Raspberry Pi](https://img.shields.io/badge/Platform-Raspberry%20Pi%203%20B%20v1.2-C51A4A.svg)](https://www.raspberrypi.org/)
 
 ## Project Overview
