@@ -29,14 +29,15 @@ def capture_frame_rgb(quantity):
     for _ in range(quantity):
         time.sleep(5)
         frame = cam.capture_array()
+        print("Picture Captured!")
         images.append(Image.fromarray(frame).convert("RGB"))
     return images
 
 def main():
     # Model Files
-    mod = "produce_net_fullmode.pth"
+    mod = "../training_scripts/produce_net_fullmodel.pth"
     labels = "../JSON/id2label_produce.json"
-    norm = "../JSON_norm_stats_produce_newdata.json"
+    norm = "../JSON/norm_stats_produce_newdata.json"
     topk = 5
 
     # Welcome message
@@ -80,7 +81,7 @@ def main():
     for img in images:
         transformed_images.append(transform(img)) #apply image transform
 
-    batch = torch.stack(images) #form input tensor
+    batch = torch.stack(transformed_images) #form input tensor
 
     # Run inference
     batch = batch.to(device)
