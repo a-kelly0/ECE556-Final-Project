@@ -10,7 +10,27 @@ import torchvision.transforms as transforms
 import torchvision.models as models
 from picamera2 import Picamera2, Preview
 
-import infer_camera_pi
+#Load mean/std from dataset 
+def load_norm_stats(path: str):
+
+    with open(path, "r") as f:
+        stats = json.load(f)
+    mean = stats["mean"]
+    std = stats["std"]
+    return mean, std
+
+#From picamera2 docs
+def capture_frame_rgb(quantity):
+    images = []
+    cam = Picamera2()
+    cam.configure(cam.create_preview_configuration())
+    cam.start_preview(Preview.QT)
+    cam.start()
+    for _ in range(quantity):
+        time.sleep(5)
+        frame = cam.capture_array()
+        images.append(Image.fromarray(frame).convert("RGB"))
+    return images
 
 def main():
     # Model Files
@@ -35,14 +55,14 @@ def main():
         elif(int(response == 0)):
             print("Must have at least one ingredient")
         else:
-            images = infer_camera_pi.capture_frame_rgb(quantity=int(response)) #take the requested number of pictures with the pi cam
+            images = capture_frame_rgb(quantity=int(response)) #take the requested number of pictures with the pi cam
             capture_mode = False
 
     # Load model
         with open(labels, "r") as f: #load label mapping
             id2label = json.load(f)
         
-        mean, std = infer_camera_pi.load_norm_stats(norm) #load normalization stats
+        mean, std = load_norm_stats(norm) #load normalization stats
 
     device = torch.device("cpu") #run on rpi3 cpu
 
