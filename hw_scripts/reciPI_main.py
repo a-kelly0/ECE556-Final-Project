@@ -38,7 +38,7 @@ def main():
     mod = "../training_scripts/produce_net_fullmodel.pth"
     labels = "../JSON/id2label_produce.json"
     norm = "../JSON/norm_stats_produce_newdata.json"
-    topk = 5
+    topk = 3 #number of predictions to display per ingredient
 
     # Welcome message
     print("------------------------------------------------------------------------")
@@ -84,22 +84,30 @@ def main():
     batch = torch.stack(transformed_images) #form input tensor
 
     # Run inference
+    ingredients = [] #store predicted ingredients
+
     batch = batch.to(device)
 
     with torch.no_grad():
-        logits = model(batch)
+        logits = model(batch) #send input to model
         probs = torch.softmax(logits, dim=1)
         
         for i in range(0, len(batch)):
             topk = min(topk, probs[i].numel())
-            vals, idxs = torch.topk(probs[i], k=topk) #Top 5 ingredients
+            vals, idxs = torch.topk(probs[i], k=topk) #Top k ingredients
 
-            print("Image One Prediction:")
+            print("Choose the Appropriate Prediction for Ingredient", i) #present user with prediction
             for v, i in zip(vals.tolist(), idxs.tolist()):
                 #JSON keys may be strings
                 name = id2label.get(str(i), id2label.get(i, f"class_{i}"))
                 print(f"  {name}: {v:.3f}")
 
+                choice = input("Is this correct (y/n)") #prompt user to check prediction
+
+                if(choice == 'y'): #correct prediciton
+                    ingredients.append(name)
+                    break
+            
 if __name__ == "__main__":
     main()
         
