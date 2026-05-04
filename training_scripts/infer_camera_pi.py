@@ -27,15 +27,17 @@ def load_norm_stats(path: str):
     return mean, std
 
 #From picamera2 docs
-def capture_frame_rgb():
+def capture_frame_rgb(quantity):
+    images = []
     cam = Picamera2()
     cam.configure(cam.create_preview_configuration())
     cam.start_preview(Preview.QT)
     cam.start()
-    time.sleep(10)
-    frame = cam.capture_array()
-    image = Image.fromarray(frame).convert("RGB")
-    return image
+    for _ in range(quantity):
+        time.sleep(5)
+        frame = cam.capture_array()
+        images.append(Image.fromarray(frame).convert("RGB"))
+    return images
 
 
 def main():
@@ -74,7 +76,7 @@ def main():
     if args.image is not None:
         img = Image.open(args.image).convert("RGB")
     else:
-        img = capture_frame_rgb()
+        img = capture_frame_rgb(1)[0] #take only first image
 
     #Add batch dimension
     x = transform(img).unsqueeze(0).to(device)
