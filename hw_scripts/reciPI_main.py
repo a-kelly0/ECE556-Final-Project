@@ -33,7 +33,7 @@ def capture_frame_rgb(quantity):
     for _ in range(quantity):
         time.sleep(5)
         frame = cam.capture_array()
-        print("Picture Captured!")
+        print("\nPicture Captured!\n")
         images.append(Image.fromarray(frame).convert("RGB"))
     cam.close()
     return images
@@ -46,7 +46,7 @@ def get_recipe(ingredients:list):
     with open("../data/reduced_recipe_cache.pkl", "rb") as f:
         ds = pickle.load(f)
 
-    ingredients = set(ingredients)
+    ingredients = set(ing.strip().lower() for ing in ingredients)
 
     winner = None
     best_score = -1
@@ -54,12 +54,17 @@ def get_recipe(ingredients:list):
 
     #iterate through recipes, rank by how many of the available ingredients are used
     for row in ds:
-        score = sum(1 for ing in row["NER"] if ing in ingredients)
+        score = sum(1 for ing in row["NER"] if ing.stip().lower() in ingredients)
 
         if score > best_score:
             best_score = score
             winner = row["title"]
-            link = row["link"]    
+            link = row["link"]
+
+    #if no recipes use this ingredient
+    if(best_score == 0):
+        print("Could not find recipe in the dataset for these ingredients")
+        winner = None    
     return winner, link
 
 def main():
@@ -82,6 +87,8 @@ def main():
     # Take pictures of ingredients with PI Camera
     images = [] #array to temporarily store pictures
     response = input("How many ingredients would you like to capture? ")
+    print("\n")
+    print("---------------------------Starting PI Camera---------------------------")
     capture_mode = True
     while(capture_mode):
         if not(response.isdigit()):
@@ -142,11 +149,12 @@ def main():
                     break
 
     # Find matching recipe
-    print("Your ingredients are:", ingredients)
-    print("Finding Recipe...")
+    print("\nYour ingredients are:", ingredients, "\n")
+    print("----------------------_-----Finding Recipe---------_------------------")
     rec, link = get_recipe(ingredients=ingredients)
-    print("Recommended Recipe:", rec)
-    print("Link:", link)
+    if rec != None:
+        print("Recommended Recipe:", rec)
+        print("Link:", link)
             
 if __name__ == "__main__":
     main()
