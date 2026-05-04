@@ -88,18 +88,17 @@ def main():
 
     with torch.no_grad():
         logits = model(batch)
-        probs = torch.softmax(logits, dim=1)[0]
-
+        probs = torch.softmax(logits, dim=1)
         
-        topk = min(topk, probs.numel())
-        vals, idxs = torch.topk(probs, k=topk) #Top 5 ingredients
+        for i in range(0, len(batch)):
+            topk = min(topk, probs[i].numel())
+            vals, idxs = torch.topk(probs[i], k=topk) #Top 5 ingredients
 
-    print("Top predictions:")
-    for v, i in zip(vals.tolist(), idxs.tolist()):
-        #JSON keys may be strings
-        name = id2label.get(str(i), id2label.get(i, f"class_{i}"))
-        print(f"  {name}: {v:.3f}")
-
+            print("Image One Prediction:")
+            for v, i in zip(vals.tolist(), idxs.tolist()):
+                #JSON keys may be strings
+                name = id2label.get(str(i), id2label.get(i, f"class_{i}"))
+                print(f"  {name}: {v:.3f}")
 
 if __name__ == "__main__":
     main()
