@@ -40,9 +40,9 @@ def capture_frame_rgb():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--weights", default="../food_net.pth", help="Path to saved model state_dict")
-    ap.add_argument("--labels", default="../JSON/id2label.json", help="Path to id2label.json")
-    ap.add_argument("--norm", default="../JSON/norm_stats.json", help="Path to normalization stats json")
+    ap.add_argument("--weights", default="produce_net_fullmodel.pth", help="Path to saved model state_dict")
+    ap.add_argument("--labels", default="../JSON/id2label_produce.json", help="Path to id2label.json")
+    ap.add_argument("--norm", default="../JSON/norm_stats_produce_newdata.json", help="Path to normalization stats json")
     ap.add_argument("--image", default=None, help="Optional: run inference on an image file instead of camera")
     ap.add_argument("--topk", type=int, default=5, help="How many top predictions to print")
     args = ap.parse_args()
@@ -64,9 +64,10 @@ def main():
     #Run on rpi3 cpu
     device = torch.device("cpu")
 
-    model = build_model(num_classes=len(id2label)).to(device)
-    state = torch.load(args.weights, map_location=device)
-    model.load_state_dict(state)
+    #model = build_model(num_classes=len(id2label)).to(device)
+    #state = torch.load(args.weights, map_location=device)
+    #model.load_state_dict(state)
+    model = torch.load("produce_net_fullmodel.pth", map_location=device, weights_only=False)
     model.eval()
 
     #Get image
