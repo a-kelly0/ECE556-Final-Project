@@ -1,6 +1,5 @@
 #ReciPI: Auto Recipe Generation​
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
 [![Platform: Raspberry Pi](https://img.shields.io/badge/Platform-Raspberry%20Pi%203-C51A4A.svg)](https://www.raspberrypi.org/)
 
