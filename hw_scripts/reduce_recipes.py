@@ -20,7 +20,7 @@ def read_csv(data_path:str, output_file:str):
     Cleaned dictionary is stored as full_recipe_cache.pkl in the current working dir.
     '''
     df = pd.read_csv(data_path) #convert csv to dataframe #TODO change path back
-    df = df[["title", "NER"]] #extract title and simplified ingredients
+    df = df[["title", "NER", "link"]] #extract title, simplified ingredients, and link
     df["NER"] = df["NER"].apply(ast.literal_eval) #convert NER ingredients list to readable strings
     df = df[df["NER"].apply(lambda x: isinstance(x, list) and len(x) > 0)] #remove all recipes with empty ingredients lists
 
@@ -56,7 +56,7 @@ def reduce_ds(ingredients:list):
     return limited_ds
 
 #read and parse full csv of recipes
-# read_csv(data_path="../dataset/valid_recipe_dataset.csv", output_file="full_recipe_cache.pkl")
+read_csv(data_path="../dataset/valid_recipe_dataset.csv", output_file="full_recipe_cache.pkl")
 
 # list of valid ingredients
 ingredients = ["apple", "blueberries", "carrot", "strawberries", "broccoli", "avocado", 

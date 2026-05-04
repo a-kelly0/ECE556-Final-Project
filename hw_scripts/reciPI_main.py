@@ -42,24 +42,24 @@ def get_recipe(ingredients:list):
     Given a list of ingredients, searches the recipe dictionary for the top recipe that uses the available ingredients
     Dictionary of valid recipes should be stored as reduced_recipe_cache.pkl in the current dir
     '''
-    with open("reduced_recipe_cache.pkl", "rb") as f:
+    with open("../data/reduced_recipe_cache.pkl", "rb") as f:
         ds = pickle.load(f)
-    
-    recipe_rankings = {} #dictionary of recipes ranked by how many of the given ingredients are used
+
+    ingredients = set(ingredients)
+
+    winner = None
+    best_score = -1
+    link = None
 
     #iterate through recipes, rank by how many of the available ingredients are used
     for row in ds:
-        ranking = 0
-        for ing in row["NER"]:
-            if ing in ingredients:
-                ranking+=1
-        recipe_rankings[row["title"]] = ranking
+        score = sum(1 for ing in row["NER"] if ing in ingredients)
 
-    winner = max(recipe_rankings, key=recipe_rankings.get) #save best recipe
-
-    print(winner)
-    
-    return winner
+        if score > best_score:
+            best_score = score
+            winner = row["title"]
+            link = row["link"]    
+    return winner, link
 
 def main():
     '''
@@ -143,8 +143,9 @@ def main():
     # Find matching recipe
     print("Your ingredients are:", ingredients)
     print("Finding Recipe...")
-    rec = get_recipe(ingredients=ingredients)
+    rec, link = get_recipe(ingredients=ingredients)
     print("Recommended Recipe:", rec)
+    print("Link:", link)
             
 if __name__ == "__main__":
     main()
