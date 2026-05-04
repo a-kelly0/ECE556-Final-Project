@@ -10,17 +10,21 @@ import torchvision.transforms as transforms
 import torchvision.models as models
 from picamera2 import Picamera2, Preview
 
-#Load mean/std from dataset 
 def load_norm_stats(path: str):
-
+    '''
+    Loads mean and standard deviation dataset statistics from json file
+    '''
     with open(path, "r") as f:
         stats = json.load(f)
     mean = stats["mean"]
     std = stats["std"]
     return mean, std
 
-#From picamera2 docs
 def capture_frame_rgb(quantity):
+    '''
+    Captures the provided number of pictures with the Raspberry PI camera.
+    Console print after each picture is taken.
+    '''
     images = []
     cam = Picamera2()
     cam.configure(cam.create_preview_configuration())
@@ -33,7 +37,35 @@ def capture_frame_rgb(quantity):
         images.append(Image.fromarray(frame).convert("RGB"))
     return images
 
+def get_recipe(ingredients:list):
+    '''
+    Given a list of ingredients, searches the recipe dictionary for the top recipe that uses the available ingredients
+    Dictionary of valid recipes should be stored as reduced_recipe_cache.pkl in the current dir
+    '''
+    with open("reduced_recipe_cache.pkl", "rb") as f:
+        ds = pickle.load(f)
+    
+    recipe_rankings = {} #dictionary of recipes ranked by how many of the given ingredients are used
+
+    #iterate through recipes, rank by how many of the available ingredients are used
+    for row in ds:
+        ranking = 0
+        for ing in row["NER"]:
+            if ing in ingredients:
+                ranking+=1
+        recipe_rankings[row["title"]] = ranking
+
+    winner = max(recipe_rankings, key=recipe_rankings.get) #save best recipe
+
+    print(winner)
+    
+    return winner
+
 def main():
+    '''
+    Main system loop for ReciPI.
+    Captures ingredients, runs inference, and returns the provided recipe.
+    '''
     # Model Files
     mod = "../training_scripts/produce_net_fullmodel.pth"
     labels = "../JSON/id2label_produce.json"
@@ -96,7 +128,7 @@ def main():
             topk = min(topk, probs[i].numel())
             vals, idxs = torch.topk(probs[i], k=topk) #Top k ingredients
 
-            print("Choose the Appropriate Prediction for Ingredient", i) #present user with prediction
+            print("Choose the Appropriate Prediction for Ingredient", i+1) #present user with prediction
             for v, i in zip(vals.tolist(), idxs.tolist()):
                 #JSON keys may be strings
                 name = id2label.get(str(i), id2label.get(i, f"class_{i}"))
@@ -107,6 +139,12 @@ def main():
                 if(choice == 'y'): #correct prediciton
                     ingredients.append(name)
                     break
+
+    # Find matching recipe
+    print("Your ingredients are:", ingredients)
+    print("Finding Recipe...")
+    rec = get_recipe(ingredients=ingredients)
+    print("Recommended Recipe:", rec)
             
 if __name__ == "__main__":
     main()
