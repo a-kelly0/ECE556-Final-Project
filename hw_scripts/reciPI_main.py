@@ -35,6 +35,7 @@ def capture_frame_rgb(quantity):
         frame = cam.capture_array()
         print("Picture Captured!")
         images.append(Image.fromarray(frame).convert("RGB"))
+    cam.close()
     return images
 
 def get_recipe(ingredients:list):
