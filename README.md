@@ -11,8 +11,14 @@ This project uses edge computing to identify food ingredients in real-time and r
     Peripherals: Raspberry Pi Camera Module V2
 
 ## Setup Instructions
-TODO 
-
+1. Clone the repo
+2. Connect the PiCamV2 to the Pi
+3. Download the following files to the Pi:
+    - hw_scripts/reciPI_main.py
+    - JSON/id2label.json
+    - data/reduced_recipe_cache.pkl
+    - training_scripts/produce_net_fullmodel.pth
+4. In the on-device command line, run ```python3 reciPI_main.py```
 ## Architecture
 
 ```text
