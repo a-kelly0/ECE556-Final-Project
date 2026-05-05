@@ -1,10 +1,14 @@
 import json
 import time
 import argparse
+import psutil
+import os
 
 import torch
 from torch import nn
 from PIL import Image
+import pickle
+import time
 
 import torchvision.transforms as transforms
 import torchvision.models as models
@@ -54,7 +58,7 @@ def get_recipe(ingredients:list):
 
     #iterate through recipes, rank by how many of the available ingredients are used
     for row in ds:
-        score = sum(1 for ing in row["NER"] if ing.stip().lower() in ingredients)
+        score = sum(1 for ing in row["NER"] if ing.strip().lower() in ingredients)
 
         if score > best_score:
             best_score = score
@@ -98,10 +102,11 @@ def main():
         else:
             images = capture_frame_rgb(quantity=int(response)) #take the requested number of pictures with the pi cam
             capture_mode = False
+    print("---------------------------Processing Images---------------------------")
 
     # Load model
-        with open(labels, "r") as f: #load label mapping
-            id2label = json.load(f)
+    with open(labels, "r") as f: #load label mapping
+        id2label = json.load(f)
         
         mean, std = load_norm_stats(norm) #load normalization stats
 
@@ -129,7 +134,17 @@ def main():
     batch = batch.to(device)
 
     with torch.no_grad():
+        #process = psutil.Process(os.getpid())
+        #process.cpu_percent(interval=None)
+        #t1 = time.time()
         logits = model(batch) #send input to model
+        print("RAM Usage:", psutil.virtual_memory().total - psutil.virtual_memory().available)
+        print("Total RAM", psutil.virtual_memory().total)
+        #cpu_usage = process.cpu_percent(interval=None) #get active cpu usage
+        #t2 = time.time()
+        #print("inference latency:", t2-t1) #get inference latency
+        #print("Inference CPU Usage", cpu_usage)
+
         probs = torch.softmax(logits, dim=1)
         
         for i in range(0, len(batch)):
@@ -151,7 +166,10 @@ def main():
     # Find matching recipe
     print("\nYour ingredients are:", ingredients, "\n")
     print("----------------------_-----Finding Recipe---------_------------------")
+    t1 = time.time()
     rec, link = get_recipe(ingredients=ingredients)
+    t2 = time.time()
+    print("recipe search latency:", t2-t1)
     if rec != None:
         print("Recommended Recipe:", rec)
         print("Link:", link)
